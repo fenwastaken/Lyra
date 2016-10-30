@@ -678,7 +678,7 @@ public class Bot extends PircBot{
 			sendMessage(sender, "\t count hostnames for <name> [displays the number or hostnames and logins for this nick]");
 			sendMessage(sender, "\t tell <name> <message> [register a message for <name> that will be displayed next time they are active]");
 			sendMessage(sender, "\t delete my messages [deletes the messages you sent with this nick]");
-			sendMessage(sender, "\t avatar [returns a pam with all players who have an avatar]");
+			sendMessage(sender, "\t avatar [returns a pm with all players who have an avatar]");
 			sendMessage(sender, "\t avatar <name> [returns the imgur link of the target's avatar]");
 			sendMessage(sender, "\t set avatar <avatar imgur ling> [saves the sender's avatar link in the database]");
 			sendMessage(sender, "\t do you know us? [returns the list of all the nicks who are not registred yet] !!admin only!!");
