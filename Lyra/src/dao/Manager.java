@@ -219,4 +219,80 @@ public class Manager {
 		return count;
 	}
 
+	//avatars------
+	
+	public static int getAvatarID(int ID) throws SQLException{
+		String sql = "SELECT \"ID\" FROM public.\"AVATAR\" WHERE \"ID\" = ?;";
+		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		st.setInt(1, ID);
+		ResultSet rs = st.executeQuery();
+		int ret = -2;
+		if(rs.next()){
+			ret = rs.getInt("ID");
+		}
+		return ret;
+	}
+
+	public static int setAvatar(int ID, String link) throws SQLException{
+		String sql = "INSERT INTO public.\"AVATAR\"(\"ID\", \"LINK\")VALUES (?, ?)";
+		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		st.setInt(1, ID);
+		st.setString(2, link);
+		int ret = st.executeUpdate();
+
+		return ret;
+
+	}
+
+	public static int updateAvatar(int ID, String link) throws SQLException{
+		String sql = "UPDATE public.\"AVATAR\" SET \"LINK\"=? WHERE \"ID\" = ?";
+		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		st.setString(1, link);
+		st.setInt(2, ID);
+		int ret = st.executeUpdate();
+		return ret;
+	}
+	
+	public static String getAvatarLink(int ID) throws SQLException{
+		String sql = "SELECT \"LINK\" FROM public.\"AVATAR\" WHERE \"ID\" = ?;";
+		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		st.setInt(1, ID);
+		ResultSet rs = st.executeQuery();
+		String ret = "";
+		if(rs.next()){
+			ret = rs.getString("LINK");
+		}
+		return ret;
+	}
+	
+	public static Vector<String> getAllAvatars() throws SQLException{
+		String sql = "SELECT nick FROM public.nick AS n JOIN public.\"AVATAR\" AS a ON a.\"ID\" = n.id ORDER BY nick;";
+		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		ResultSet rs = st.executeQuery();
+		Vector<String> vec = new Vector<String>();
+		while(rs.next()){
+			vec.add(rs.getString("nick"));
+		}
+		return vec;
+	}
+
+	public static Vector<String> getAllNoAvatars() throws SQLException{
+		String sql = "SELECT \"NAME\" FROM public.\"CHARACTER\" AS c FULL JOIN public.\"AVATAR\" AS a ON a.\"ID\" = c.\"ID\" WHERE c.\"ID\" IS NULL OR a.\"ID\" IS NULL ORDER BY \"NAME\";";
+		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		ResultSet rs = st.executeQuery();
+		Vector<String> vec = new Vector<String>();
+		while(rs.next()){
+			vec.add(rs.getString("NAME"));
+		}
+		return vec;
+	}
+	
+	public static int deleteAvatar(int ID) throws SQLException{
+		String sql = "DELETE FROM public.\"AVATAR\" WHERE \"ID\" = ?;";
+		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		st.setInt(1, ID);
+		int ret = st.executeUpdate();
+		return ret;
+	}
+	
 }

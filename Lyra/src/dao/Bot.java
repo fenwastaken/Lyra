@@ -17,6 +17,7 @@ public class Bot extends PircBot{
 	String channel;
 	String irc;
 	String admin;
+	String command;
 	
 	Vector<Lmessage> vecMessage = new Vector<Lmessage>();
 
@@ -51,6 +52,9 @@ public class Bot extends PircBot{
 		// TODO Auto-generated method stub
 		super.onConnect();
 		this.botNick = this.getNick();
+		this.command = botNick.toLowerCase() + ", "; //updates the nick in case it was taken
+		//this.command = "!";
+		
 	}
 
 
@@ -79,6 +83,8 @@ public class Bot extends PircBot{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		deliverMessages(sender);
 		
 	}
 	
@@ -137,6 +143,7 @@ public class Bot extends PircBot{
 		}
 
 		//commands
+		roll(channel, message, sender);
 		getInfo(sender, message);
 		whoTalkedMost(sender, message);
 		getNicksFromHostnames(message);
@@ -145,6 +152,9 @@ public class Bot extends PircBot{
 		youtube(channel, message, sender);
 		count(message);
 		help(sender, message);
+		
+		getAvatar(channel, message, sender);
+		setAvatar(channel, message, sender);
 		
 		if(sender.equals(admin) && message.toLowerCase().startsWith(botNick.toLowerCase() + ", do you know us")){
 			spyThem(channel);
@@ -241,29 +251,10 @@ public class Bot extends PircBot{
 
 	}
 	
-	public static Vector<String> cuter(String message, String separator){
-		Vector<String> vec = new Vector<String>();
-		int start = message.indexOf(separator) + 1;
-		int stop = message.indexOf(separator, start);
-		String ret = "";
-
-		while(stop <= message.length() && stop != -1){
-			ret = message.substring(start, stop);
-			vec.add(ret);
-			start = stop + 1;
-			stop = message.indexOf(separator, start);
-		}
-
-		ret = message.substring(start);
-		vec.add(ret);
-
-		return vec;
-	}
-
-	
 	public void getInfo(String sender, String message){
-		if(message.toLowerCase().startsWith(botNick.toLowerCase() + ", check info about ")){
-			String name = cuter(message, " ").elementAt(3);
+		if(message.toLowerCase().startsWith(command + "check infos for ")){
+			System.out.println("COMMAND: " + command + "check infos for ");
+			String name = lastParameter(message, 0);
 			try {
 				Chatter chatter = Manager.getChatter(name);
 				if(chatter != null){
@@ -280,7 +271,8 @@ public class Bot extends PircBot{
 	}
 	
 	public void whoTalkedMost(String sender, String message){
-		if(message.toLowerCase().startsWith(botNick.toLowerCase() + ", who talked the most")){
+		if(message.toLowerCase().startsWith(command + "who talked the most")){
+			System.out.println("COMMAND: " + command + "who talked the most");
 			try {
 				Vector<Chatter> vec = Manager.getAllChatter();
 				int max = 0;
@@ -309,10 +301,9 @@ public class Bot extends PircBot{
 	}
 	
 	public void getNicksFromHostnames(String message){
-		if(message.toLowerCase().startsWith(botNick.toLowerCase() + ", check hostnames for ")){
-			String name = cuter(message, " ").elementAt(3);
-			name = name.replace("?", "");
-			name = name.replace(" ", "");
+		if(message.toLowerCase().startsWith(command + "check hostnames for ")){
+			System.out.println("COMMAND: " + command + "check hostnames for ");
+			String name = lastParameter(message, 0);
 			System.out.println("nick cut = " + name);
 			
 			try {
@@ -336,8 +327,9 @@ public class Bot extends PircBot{
 	}
 	
 	public void getNicksFromLogin(String message){
-		if(message.toLowerCase().startsWith(botNick.toLowerCase() + ", check logins for ")){
-			String name = cuter(message, " ").elementAt(3);
+		if(message.toLowerCase().startsWith(command + "check logins for ")){
+			System.out.println("COMMAND: " + command + "check logins for ");
+			String name = lastParameter(message, 0);
 			name = name.replace("?", "");
 			name = name.replace(" ", "");
 			
@@ -362,8 +354,9 @@ public class Bot extends PircBot{
 	}
 	
 	public void getTime(String message){
-		if(message.toLowerCase().startsWith(botNick.toLowerCase() + ", check time for ")){
-			String name = cuter(message, " ").elementAt(3);
+		if(message.toLowerCase().startsWith(command + "check time for ")){
+			System.out.println("COMMAND: " + command + "check time for ");
+			String name = lastParameter(message, 0);
 			name = name.replace("?", "");
 			name = name.replace(" ", "");
 			System.out.println("name cut = " + name);
@@ -383,8 +376,9 @@ public class Bot extends PircBot{
 	}
 	
 	public void youtube(String channel, String message, String sender){
-		if(message.startsWith(botNick + ", youtube ")){
-			Vector<String> param = cuter(message, " ");
+		if(message.toLowerCase().startsWith(command + "youtube ")){
+			System.out.println("COMMAND: " + command + "youtube ");
+			Vector<String> param = cutter(message, " ");
 
 			String search = "";
 
@@ -406,7 +400,6 @@ public class Bot extends PircBot{
 				}
 				in.close();
 
-				System.out.println(all);
 				int start = all.indexOf("/watch?v=");
 				int end = all.indexOf("\"", start);
 				String ret = all.substring(start, end);
@@ -421,8 +414,9 @@ public class Bot extends PircBot{
 	}
 	
 	public void count(String message){
-		if(message.toLowerCase().startsWith(botNick.toLowerCase() + ", count hostnames for ")){
-			String name = cuter(message, " ").elementAt(3);
+		if(message.toLowerCase().startsWith(command + "count hostnames for ")){
+			System.out.println("COMMAND: " + command + "count hostnames for ");
+			String name = lastParameter(message, 0);
 			name = name.replace("?", "");
 			name = name.replace(" ", "");
 			try {
@@ -441,8 +435,9 @@ public class Bot extends PircBot{
 	}
 	
 	public void setMessage(String sender, String message){
-		if(message.toLowerCase().startsWith(botNick.toLowerCase() + ", tell ")){
-			String name = cuter(message, " ").elementAt(1);
+		if(message.toLowerCase().startsWith(command + "tell ")){
+			System.out.println("COMMAND: " + command + "tell ");
+			String name = cutter(message, " ").elementAt(1);
 			String mess = message.substring(message.indexOf(name) + name.length() + 1);
 			
 			try {
@@ -486,7 +481,6 @@ public class Bot extends PircBot{
 	}
 	
 	public void deliverMessages(String target){
-		System.out.println("MAIL!");
 		Vector<Lmessage> vecDel = new Vector<Lmessage>();
 		boolean delivered = false;
 		
@@ -514,7 +508,8 @@ public class Bot extends PircBot{
 	}
 	
 	public void deleteMyMessages(String sender, String message){
-		if(message.toLowerCase().startsWith(botNick.toLowerCase() + ", delete my messages")){
+		if(message.toLowerCase().startsWith(command + "delete my messages")){
+			System.out.println("COMMAND: " + command + "delete my messages");
 			int i = 0;
 			for(Lmessage mess : vecMessage ){
 				if(mess.sender.toLowerCase().equals(sender.toLowerCase())){
@@ -533,18 +528,160 @@ public class Bot extends PircBot{
 		}
 	}
 	
+	public void setAvatar(String channel, String message, String sender){
+		if(message.toLowerCase().startsWith(command + "set avatar ")){
+			System.out.println("COMMAND: " + command + "set avatar");
+			String link = lastParameter(message, 0);
+			System.out.println(link);
+			if((link.indexOf("imgur") != -1) && ((link.endsWith(".png") || (link.endsWith(".jpg"))))){
+				try {
+					int playerID = Manager.getIDfromNick(sender);
+					int avatarID = Manager.getAvatarID(playerID);
+					if(playerID < 0){
+						sendMessage(channel, "You're not registered " + sender);
+					}
+					else{
+						if(avatarID < 0){
+							Manager.setAvatar(playerID, link);
+							sendMessage(channel, sender + "'s avatar was created! ");
+						}
+						else{
+							Manager.updateAvatar(avatarID, link);
+							sendMessage(channel, sender + "'s avatar was updated! ");
+						}
+					}
+				} catch (SQLException e) {
+
+					e.printStackTrace();
+					sendMessage(channel, "Error");
+				}
+			}
+			else{
+				sendMessage(channel, "You must use a imgur link to a png/jpg, " + sender + ".");
+			}
+
+		}
+	}
+	
+	public void getAvatar(String channel, String message, String sender){
+		if(message.toLowerCase().equals(command + "avatar")){
+			System.out.println("COMMAND: " + command + "avatar");
+			Vector<String> vec = new Vector<String>();
+			try {
+				vec = Manager.getAllAvatars();
+				String ret = "Players with avatars: ";
+				for(String str : vec){
+					ret = ret + str + ", ";
+				}
+				ret = ret.substring(0, ret.length() - 2);
+				ret = ret + ".";
+				sendMessage(sender, ret);
+			} catch (SQLException e) {
+				// 
+				e.printStackTrace();
+			}
+		}
+		else if(message.toLowerCase().startsWith(command + "avatar ")){
+			System.out.println("COMMAND: " + command + "avatar ");
+			String player = lastParameter(message, 0);
+			try {
+				int playerID = Manager.getIDfromNick(player);
+				if(playerID < 0){
+					sendMessage(channel, "There's no player named " + player + ", " + sender + ".");
+				}
+				else{
+					int avatarID = Manager.getAvatarID(playerID);
+					if(avatarID < 0){
+						sendMessage(channel, player + " has no avatar set, " + sender + ".");
+					}
+					else{
+						String avatarLink = Manager.getAvatarLink(avatarID);
+						sendMessage(channel, player + "'s avatar: " + avatarLink);
+					}
+				}
+			} catch (SQLException e) {
+
+				e.printStackTrace();
+			}
+
+		}
+	}
+	
+	public void roll(String channel, String message, String sender){
+		if(message.toLowerCase().startsWith(command + "roll ") && message.indexOf("d") != -1){
+			System.out.println("COMMAND: " + command + "roll ");
+			String param = lastParameter(message, 0);
+			try{
+				int dice = Integer.parseInt(param.substring(0 , param.indexOf("d")));
+				int sides = Integer.parseInt(param.substring(param.indexOf("d")+1));
+				if(dice > 100){
+					dice = 100;
+					sendMessage(channel, "100 dices max");
+				}
+				if(sides > 100){
+					sides = 100;
+					sendMessage(channel, "100 sides max");
+				}
+
+				DiceType dt = new DiceType(sides, dice);
+				sendMessage(channel, sender + " rolled " + dt.roll().toString());
+			}
+			catch(NumberFormatException e){
+				System.out.println("NUMBERFORMATEXCEPTION\n " + e.getMessage());
+			}
+		
+		}
+	}
+	
+	/**
+	 * returns the last word of a string [using space as a separator]
+	 * if paramNumber = 0, 1 would return the word before the last, etc
+	 * @param message
+	 * @param paramNumber
+	 * @return
+	 */
+	public String lastParameter(String message, int paramNumber){
+		Vector<String> vec = cutter(message, " ");
+		return vec.elementAt(vec.size() - (1 - paramNumber));
+	}
+	
+	public static Vector<String> cutter(String message, String separator){
+		Vector<String> vec = new Vector<String>();
+		int start = message.indexOf(separator) + 1;
+		int stop = message.indexOf(separator, start);
+		String ret = "";
+
+		while(stop <= message.length() && stop != -1){
+			ret = message.substring(start, stop);
+			vec.add(ret);
+			start = stop + 1;
+			stop = message.indexOf(separator, start);
+		}
+
+		ret = message.substring(start);
+		vec.add(ret);
+
+		return vec;
+	}
+	
 	public void help(String sender, String message){
 		if(message.toLowerCase().indexOf(botNick.toLowerCase()) > -1 && message.toLowerCase().indexOf("help") > -1){
-			sendMessage(sender, "Here's my commands: ");
-			sendMessage(sender, botNick + ", <command>");
-			sendMessage(sender, "check info about <name> [sends info about name]");
-			sendMessage(sender, "who talked the most");
-			sendMessage(sender, "check hostnames for <name> [returns other nicks used by this nick's hostname]");
-			sendMessage(sender, "check logins for <name> [returns other nicks used by this nick's login]");
-			sendMessage(sender, "check time for <name> [returns since when that user last spoke]");
-			sendMessage(sender, "count hostnames for <name> [displays the number or hostnames and logins for this nick]");
-			sendMessage(sender, "tell <name> <message> [register a message for <name> that will be displayed next time they are active]");
-			sendMessage(sender, "delete my messages [deletes the messages you sent with this nick]");
+			sendMessage(sender, "Here's my syntax: ");
+			sendMessage(sender, "\t " + command + "<command>");
+			sendMessage(sender, "And here are my commands:");
+			sendMessage(sender, "\t roll 1d100");
+			sendMessage(sender, "\t who talked the most");
+			sendMessage(sender, "\t check infos for <name> [sends info about name]");
+			sendMessage(sender, "\t check hostnames for <name> [returns other nicks used by this nick's hostname]");
+			sendMessage(sender, "\t check logins for <name> [returns other nicks used by this nick's login]");
+			sendMessage(sender, "\t check time for <name> [returns since when that user last spoke]");
+			sendMessage(sender, "\t count hostnames for <name> [displays the number or hostnames and logins for this nick]");
+			sendMessage(sender, "\t tell <name> <message> [register a message for <name> that will be displayed next time they are active]");
+			sendMessage(sender, "\t delete my messages [deletes the messages you sent with this nick]");
+			sendMessage(sender, "\t avatar [returns a pam with all players who have an avatar]");
+			sendMessage(sender, "\t avatar <name> [returns the imgur link of the target's avatar]");
+			sendMessage(sender, "\t set avatar <avatar imgur ling> [saves the sender's avatar link in the database]");
+			sendMessage(sender, "\t do you know us? [returns the list of all the nicks who are not registred yet] !!admin only!!");
 		}
 	}
 	
